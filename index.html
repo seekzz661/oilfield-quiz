@@ -946,18 +946,21 @@ function startExam() {
   shuffle(qs);
   qs = qs.slice(0, count);
 
-  state.exam = { questions: qs, index: 0, answers: {}, timer: null, timeLeft: mins * 60, total: mins * 60, active: true };
+  state.exam = { questions: qs, index: 0, answers: {}, timer: null, timeLeft: mins * 60, total: mins * 60, active: true, _startTime: Date.now() };
   renderExamPage();
   startExamTimer();
 }
 
 function startExamTimer() {
   clearInterval(state.exam.timer);
+  state.exam._lastTick = Date.now();
   state.exam.timer = setInterval(() => {
-    state.exam.timeLeft--;
+    var now = Date.now();
+    var elapsed = Math.floor((now - state.exam._startTime) / 1000);
+    state.exam.timeLeft = Math.max(0, state.exam.total - elapsed);
     updateTimerDisplay();
     if (state.exam.timeLeft <= 0) { clearInterval(state.exam.timer); finishExam(); }
-  }, 1000);
+  }, 500);
 }
 
 function updateTimerDisplay() {
